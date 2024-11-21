@@ -1,9 +1,11 @@
 import os
 from typing import List
 import numpy as np
+from sklearn.model_selection import train_test_split
+
 
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, Subset
 from torchvision.transforms import Compose, ToTensor, Normalize, Resize, RandomHorizontalFlip, RandomRotation
 from PIL import Image
 import cv2
@@ -13,7 +15,7 @@ import video_visualization as vv
 
 
 class SequentialVideoDataset(Dataset):
-    def __init__(self, data_dir, classes, sequence_length=16, target_size=(220, 220), transformations:List=None, mode='train'):
+    def __init__(self, data_dir, classes, sequence_length=16, target_size=(220, 220), transformations:List=None, mode='train', random_state=42):
         """
         Custom PyTorch dataset for loading sequential video frames.
 
@@ -24,6 +26,7 @@ class SequentialVideoDataset(Dataset):
         - target_size (tuple): Target size for each frame (H, W).
         - transformations (list): List of video transformations to apply. Exp: transformations=[DA.random_horizontal_flip, DA.random_rotation]
         - mode (str): 'train' mode for applying data augmentations.
+        - random_state (int): Random seed for reproducibility
         
         """
         self.data_dir = data_dir
@@ -32,6 +35,7 @@ class SequentialVideoDataset(Dataset):
         self.target_size = target_size
         self.samples = self._load_samples()
         self.mode = mode
+        self.random_state = random_state
 
         if transformations is None or len(transformations)==0:
             self.transformations = list()
@@ -136,7 +140,23 @@ class SequentialVideoDataset(Dataset):
     def __num_classes__(self):
         return len(self.classes)
 
+    def train_test_val_split(self, val_size=0.2, test_size=0.1):
 
+        labels = [self.samples[i][1] for i in range(len(self))]  # Get all labels
+
+        train_val_indices, test_indices = train_test_split(
+            list(range(len(labels))), test_size=test_size, stratify=labels, random_state=self.random_state
+        )
+        
+        train_indices, val_indices = train_test_split(
+            train_val_indices, test_size=val_size / (1 - test_size), stratify=[labels[i] for i in train_val_indices], random_state=self.random_state
+        )
+        
+        train_dataset = Subset(self, train_indices)
+        val_dataset = Subset(self, val_indices)
+        test_dataset = Subset(self, test_indices)
+
+        return train_dataset, val_dataset, test_dataset
 
 # Example usage
 if __name__ == "__main__":
@@ -170,18 +190,18 @@ if __name__ == "__main__":
         "soccer"
     ]# Class folder names
     
-    sequence_length = 16
-    target_size = (220, 220)  # Resize frames to 128x128 after padding
+    sequence_length = 32
+    target_size = (440, 440)  # Resize frames to 440x440 pixels
 
     va = VideoAugmentation(random_state=42)
 
-    transformations = [va.random_brightness, va.random_color_jitter, va.random_horizontal_flip, va.random_rotation]
+    transformations = [va.random_brightness, va.random_horizontal_flip, va.random_rotation]
 
     dataset = SequentialVideoDataset(
         data_dir=data_dir, 
         classes=classes, 
         sequence_length=sequence_length, 
-        target_size=target_size, mode='train', transformations=transformations
+        target_size=target_size, mode='train', transformations=transformations, random_state=42
     )
 
     # Get a sample sequence
@@ -194,4 +214,29 @@ if __name__ == "__main__":
     frames_array = frames.permute(0, 2, 3, 1).numpy()  # Convert tensor to NumPy array
     # Visualize the frames
     vv.save_as_gif(frames_array, "output/sample_video6_2.gif")
+    """
+
+    # Split the dataset
+    train_subset, val_subset, test_subset = dataset.train_test_val_split(val_size=0.2, test_size=0.15)
+
+    train_dataset = DataLoader(train_subset, batch_size=4, shuffle=True)
+    val_dataset = DataLoader(val_subset, batch_size=4, shuffle=False)
+    test_dataset = DataLoader(test_subset, batch_size=4, shuffle=False)
+
+    print(f"Train dataset size: {len(train_dataset)}")
+    print(f"Validation dataset size: {len(val_dataset)}")
+    print(f"Test dataset size: {len(test_dataset)}")
+
+    """
+
+    ## Code for saving the output as a GIF
+
+    frames, label = next(iter(train_dataset))
+    second_video_frames = frames[1]  # Index 1 for the second video, shape: (sequence_length, C, H, W)
+
+    # Rearrange dimensions to (sequence_length, H, W, C) for visualization
+    second_video_frames_array = second_video_frames.permute(0, 2, 3, 1).numpy()
+
+    # Save the frames as a GIF
+    vv.save_as_gif(second_video_frames_array, "output/second_video_sample.gif")
     """
