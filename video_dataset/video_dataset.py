@@ -1,5 +1,6 @@
 import os
 from typing import List
+import numpy as np
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -12,7 +13,7 @@ import video_visualization as vv
 
 
 class SequentialVideoDataset(Dataset):
-    def __init__(self, data_dir, classes, sequence_length=16, target_size=(128, 128), transformations:List=None, mode='train'):
+    def __init__(self, data_dir, classes, sequence_length=16, target_size=(220, 220), transformations:List=None, mode='train'):
         """
         Custom PyTorch dataset for loading sequential video frames.
 
@@ -105,7 +106,7 @@ class SequentialVideoDataset(Dataset):
     def __getitem__(self, idx):
         video_path, label = self.samples[idx]
         frames = self._read_video_frames(video_path)
-        
+
         # Sample frames sequentially (at regular intervals)
         frames = self._sample_frames(frames)
 
@@ -115,18 +116,18 @@ class SequentialVideoDataset(Dataset):
             pil_image = Image.fromarray(frame)
             pil_image = self._pad_to_square(pil_image)  # Pad to square
             pil_image = pil_image.resize(self.target_size, Image.Resampling.LANCZOS)  # Resize to target size
-
-            frames_resized.append(ToTensor(pil_image))  # Convert to tensor
-        
-        # Stack frames into a single tensor
-        frames_tensor = torch.stack(frames_resized)  # Shape: (sequence_length, C, H, W)
+            frames_resized.append(pil_image)
 
         if self.mode == 'train':
             # Applying the transformations to the frames sequentially
-            for transform in transformations:
-                frames_tensor = transform(frames_tensor)
-        
-        
+            frames_array = [np.array(frame) for frame in frames_resized]
+            for transform in self.transformations:
+                frames_array = transform(frames_array)
+            frames_resized = [Image.fromarray(frame) for frame in frames_array]
+            
+
+        # Convert frames to tensors
+        frames_tensor = torch.stack([ToTensor()(frame) for frame in frames_resized])  # Shape: (sequence_length, C, H, W)
         return frames_tensor, label
 
     def __len__(self):
@@ -139,21 +140,42 @@ class SequentialVideoDataset(Dataset):
 
 # Example usage
 if __name__ == "__main__":
-    data_dir = "../../Videos"
+    data_dir = "../Videos"
     classes = [
-        "archery", "bmx", "cheerleading", "football", "hammerthrow", "hurdling",
-        "polevault", "shotput", "soccer", "volleyball", "baseball", "bowling",
-        "discusthrow", "golf", "highjump", "javelin", "rowing", "skating",
-        "swimming", "weight", "basketball", "boxing", "diving", "gymnastics",
-        "hockey", "longjump", "running", "skiing", "tennis", "wrestling"
-        ] # Class folder names
+        "archery",
+        "baseball",
+        "basketball",
+        "bmx",
+        "bowling",
+        "boxing",
+        "cheerleading",
+        "golf",
+        "hammerthrow",
+        "highjump",
+        "hockey",
+        "hurdling",
+        "javelin",
+        "polevault",
+        "rowing",
+        "swimming",
+        "tennis",
+        "volleyball",
+        "weight",
+        "wrestling",
+        "discusthrow",
+        "skating",
+        "skiing",
+        "running",
+        "shotput",
+        "soccer"
+    ]# Class folder names
     
     sequence_length = 16
-    target_size = (440, 440)  # Resize frames to 128x128 after padding
+    target_size = (220, 220)  # Resize frames to 128x128 after padding
 
     va = VideoAugmentation(random_state=42)
 
-    transformations = [va.random_brightness, va.random_contrast, va.random_horizontal_flip]
+    transformations = [va.random_brightness, va.random_color_jitter, va.random_horizontal_flip, va.random_rotation]
 
     dataset = SequentialVideoDataset(
         data_dir=data_dir, 
@@ -163,7 +185,13 @@ if __name__ == "__main__":
     )
 
     # Get a sample sequence
-    frames, label = dataset[600]  # Get the first video and its label
+    frames, label = dataset[601]  # Get the first video and its label
     print(f"Video label: {label}, Frames shape: {frames.shape}")
+    
+    """
+    ## Code for saving the output as a GIF
 
-
+    frames_array = frames.permute(0, 2, 3, 1).numpy()  # Convert tensor to NumPy array
+    # Visualize the frames
+    vv.save_as_gif(frames_array, "output/sample_video6_2.gif")
+    """
