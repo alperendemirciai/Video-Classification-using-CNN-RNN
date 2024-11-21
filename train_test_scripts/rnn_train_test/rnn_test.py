@@ -3,27 +3,25 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from video_dataset.video_dataset import SequentialVideoDataset
-from video_dataset.video_augmentations import VideoAugmentation
+from datasets.video_dataset.video_dataset import SequentialVideoDataset
+from datasets.video_dataset.video_augmentations import VideoAugmentation
 
-from utils.evaluation_metrics import *
-from utils.visualization import *
+from utils.rnn_utils.evaluation_metrics import *
+from utils.rnn_utils.visualization import *
 from utils import arg_parser
 
-from models.rnn_architectures.attention_lstm import AttentionLSTM
-from models.rnn_architectures.residual_lstm import ResidualLSTM
-from models.rnn_architectures.gru_model import GRUModel
+from models.architectures.rnn_architectures.attention_lstm import AttentionLSTM
+from models.architectures.rnn_architectures.residual_lstm import ResidualLSTM
+from models.architectures.rnn_architectures.gru_model import GRUModel
 
 ## import tqdm
 from tqdm import tqdm
 
 
-def train(args, train_loader, val_loader, model, criterion, optimizer):
+def test(args, test_loader, model, criterion):
     pass 
 
 
-def train_one_epoch(args, train_loader, model, criterion, optimizer):
-    pass
 
 
 if __name__ == '__main__':
@@ -79,16 +77,16 @@ if __name__ == '__main__':
 
     train_subset, val_subset, test_subset = dataset.train_test_val_split(val_size=0.2, test_size=0.15)
 
-    train_loader = DataLoader(train_subset, batch_size=args.bs, shuffle=True)
-    val_loader = DataLoader(val_subset, batch_size=args.bs, shuffle=False)
+    test_loader = DataLoader(test_subset, batch_size=args.bs, shuffle=True)
 
     INPUT_SIZE = 440*440*3 # WILL BE CHANGED LATER WITH RESPECT TO THE CNN MODELS OUTPUT SIZE
 
     model = AttentionLSTM(input_size=INPUT_SIZE, hidden_size=128, num_classes=len(classes), num_layers=1)
+    model.load_state_dict(torch.load(args.model_path))
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-    train(args, train_loader, val_loader, model, criterion, optimizer)
+    test(args, test_loader, model, criterion)
     
 
