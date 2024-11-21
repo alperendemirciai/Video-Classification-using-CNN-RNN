@@ -2,3 +2,4 @@
 *.gif
 *.DS_Store
 *.pyc
+data/*
