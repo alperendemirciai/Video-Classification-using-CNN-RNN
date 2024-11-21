@@ -1,29 +1,39 @@
 import os
+from typing import List
+
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import Compose, ToTensor, Normalize, Resize, RandomHorizontalFlip, RandomRotation
 from PIL import Image
-import random
 import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import video_augmentations as va
+
+from video_augmentations import VideoAugmentation
 import video_visualization as vv
 
 
-
 class SequentialVideoDataset(Dataset):
-    def __init__(self, data_dir, classes, sequence_length=16, target_size=(128, 128), transformations=None):
+    def __init__(self, data_dir, classes, sequence_length=16, target_size=(128, 128), transformations:List=None, mode='train'):
+        """
+        Custom PyTorch dataset for loading sequential video frames.
+
+        Args:
+        - data_dir (str): Directory containing class folders, each containing video files.
+        - classes (list): List of class names (folder names in data_dir).
+        - sequence_length (int): Number of frames to sample from each video.
+        - target_size (tuple): Target size for each frame (H, W).
+        - transformations (list): List of video transformations to apply. Exp: transformations=[DA.random_horizontal_flip, DA.random_rotation]
+        - mode (str): 'train' mode for applying data augmentations.
+        
+        """
         self.data_dir = data_dir
         self.classes = classes
         self.sequence_length = sequence_length
         self.target_size = target_size
         self.samples = self._load_samples()
+        self.mode = mode
 
-        if transformations is None:
-            self.transformations = Compose([
-                ToTensor(),  # Convert to tensor and permute (H, W, C) -> (C, H, W)
-            ])
+        if transformations is None or len(transformations)==0:
+            self.transformations = list()
         else:
             self.transformations = transformations
 
@@ -106,10 +116,16 @@ class SequentialVideoDataset(Dataset):
             pil_image = self._pad_to_square(pil_image)  # Pad to square
             pil_image = pil_image.resize(self.target_size, Image.Resampling.LANCZOS)  # Resize to target size
 
-            frames_resized.append(self.transformations(pil_image))
+            frames_resized.append(ToTensor(pil_image))  # Convert to tensor
         
         # Stack frames into a single tensor
         frames_tensor = torch.stack(frames_resized)  # Shape: (sequence_length, C, H, W)
+
+        if self.mode == 'train':
+            # Applying the transformations to the frames sequentially
+            for transform in transformations:
+                frames_tensor = transform(frames_tensor)
+        
         
         return frames_tensor, label
 
@@ -135,29 +151,19 @@ if __name__ == "__main__":
     sequence_length = 16
     target_size = (440, 440)  # Resize frames to 128x128 after padding
 
+    va = VideoAugmentation(random_state=42)
+
+    transformations = [va.random_brightness, va.random_contrast, va.random_horizontal_flip]
+
     dataset = SequentialVideoDataset(
         data_dir=data_dir, 
         classes=classes, 
         sequence_length=sequence_length, 
-        target_size=target_size
+        target_size=target_size, mode='train', transformations=transformations
     )
 
     # Get a sample sequence
     frames, label = dataset[600]  # Get the first video and its label
     print(f"Video label: {label}, Frames shape: {frames.shape}")
-    ##show_frames(frames, normalize=True)
-
-    # Ensure frames are numpy arrays
-    if isinstance(frames, torch.Tensor):
-        frames = frames.permute(0, 2, 3, 1).numpy()  # Convert from (T, C, H, W) to (T, H, W, C)
-
-    # Save as GIF
-    gif_path = "./output/sample_video5.gif"
-    vv.save_as_gif(frames, gif_path, normalize=True)
-
-    frames = va.random_rotation(frames)
-    frames = va.random_horizontal_flip(frames)
-
-    vv.save_as_gif(frames, "./output/sample_video5_augmented.gif", normalize=True)
 
 
