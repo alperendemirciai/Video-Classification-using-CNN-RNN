@@ -19,6 +19,12 @@ def plot_train_val_history(train_loss_history, val_loss_history, save_path):
     plt.title('Training and Validation Loss Over Epochs')
     plt.legend()
     plt.grid(True)
+
+    if os.path.exists(save_path):
+        os.remove(save_path)
+    else:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
     plt.savefig(save_path)
     plt.close()
 
@@ -41,5 +47,11 @@ def plot_metric(metric_history, label, plot_dir, metric):
     plt.title(f'{label} Over Epochs')
     plt.legend()
     plt.grid(True)
+    
+    if os.path.exists(save_path):
+        os.remove(save_path)
+    else:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
     plt.savefig(os.path.join(plot_dir, f'{metric}_plot.png'))
     plt.close()
