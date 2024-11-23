@@ -25,6 +25,7 @@ class ImageDataset(Dataset):
         self.target_size = target_size
         self.mode = mode
         self.random_state = random_state
+        # TODO: FIX THE SHIT OUTTA THIS!!!!
         self.samples = self.load_samples_from_mode_()
         self.normalize = Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
