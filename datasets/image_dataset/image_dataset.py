@@ -3,6 +3,7 @@ import os
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 from PIL import Image
+from torchvision.transforms import Normalize
 
 from image_augmentation import ImageAugmentation
 
@@ -25,6 +26,7 @@ class ImageDataset(Dataset):
         self.mode = mode
         self.random_state = random_state
         self.samples = self.load_samples_from_mode_()
+        self.normalize = Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     def load_samples_from_mode_(self):
         samples = []
@@ -50,6 +52,8 @@ class ImageDataset(Dataset):
             image = self.transformations(image)
 
         image = ToTensor()(image)
+        image = self.normalize(image)
+        
         return image, label
 
 # Example usage:
