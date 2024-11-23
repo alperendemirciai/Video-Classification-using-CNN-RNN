@@ -1,5 +1,4 @@
 import os
-from sklearn.model_selection import train_test_split
 
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
@@ -79,10 +78,37 @@ if __name__ == '__main__':
         'weightlifting', 
         'olympic wrestling'
     ]
-    # TODO: fix rest of the example usage
-    transformations = [ToTensor()]
-    dataset = ImageDataset(path, classes, transformations)
-    print(len(dataset))
-    print(dataset.__num_classes__())
-    image, label = dataset[0]
-    print(image.shape, label)
+    
+    ig = ImageAugmentation()
+    transformations = [ig.random_brightness, ig.random_horizontal_flip, ig.random_rotation]
+    
+    train = ImageDataset(
+        path, 
+        classes, 
+        transformations, 
+        mode='train'
+    )
+    test = ImageDataset(
+        path, 
+        classes, 
+        transformations, 
+        mode='test'
+    )
+    valid = ImageDataset(
+        path, 
+        classes, 
+        transformations, 
+        mode='valid'
+    )
+
+    print(train.__len__())
+    print(test.__len__())
+    print(valid.__len__())
+
+    print(train.__getitem__(0))
+    print(test.__getitem__(0))
+    print(valid.__getitem__(0))
+
+    print(train.__num_classes__())
+    print(test.__num_classes__())
+    print(valid.__num_classes__())
