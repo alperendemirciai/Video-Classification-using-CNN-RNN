@@ -1,13 +1,16 @@
+import os
+from tqdm import tqdm
+
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import models
 import torch.nn as nn
-from tqdm import tqdm
+
 from datasets.image_dataset.image_dataset import ImageDataset
 from datasets.image_dataset.image_augmentation import ImageAugmentation
 
-path = '../data'
+path = os.path.join(os.getcwd(), 'data')
 classes = [
     'archery', 
     'baseball', 
@@ -29,7 +32,7 @@ classes = [
     'tennis', 
     'volleyball', 
     'weightlifting', 
-    'olympic wrestling'
+    'olympic wrestling'
 ]
 
 ig = ImageAugmentation()

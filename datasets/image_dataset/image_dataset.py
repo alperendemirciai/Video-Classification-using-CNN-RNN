@@ -5,7 +5,7 @@ from torchvision.transforms import ToTensor
 from PIL import Image
 from torchvision.transforms import Normalize
 
-from image_augmentation import ImageAugmentation
+from .image_augmentation import ImageAugmentation
 
 class ImageDataset(Dataset):
     """PyTorch dataset for image data."""
@@ -25,7 +25,6 @@ class ImageDataset(Dataset):
         self.target_size = target_size
         self.mode = mode
         self.random_state = random_state
-        # TODO: FIX THE SHIT OUTTA THIS!!!!
         self.samples = self.load_samples_from_mode_()
         self.normalize = Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
@@ -47,10 +46,11 @@ class ImageDataset(Dataset):
     def __getitem__(self, idx):
         image_path, label = self.samples[idx]
         image = Image.open(image_path).convert('RGB')
-        image = image.resize(self.target_size, Image.ANTIALIAS)
+        image = image.resize(self.target_size, Image.LANCZOS)
 
         if self.mode == 'train':
-            image = self.transformations(image)
+            for transform in self.transformations:
+                image = transform(image)
 
         image = ToTensor()(image)
         image = self.normalize(image)
@@ -59,7 +59,7 @@ class ImageDataset(Dataset):
 
 # Example usage:
 if __name__ == '__main__':
-    path = '../data'
+    path = os.path.join(os.getcwd(), 'data')
     classes = [
         'archery', 
         'baseball', 
@@ -72,7 +72,8 @@ if __name__ == '__main__':
         'golf', 
         'hammer throw', 
         'hockey', 
-        'javelin', 
+        'javelin',
+        'olympic wrestling',
         'pole vault', 
         'rowing', 
         'skating', 
@@ -80,13 +81,11 @@ if __name__ == '__main__':
         'swimming', 
         'tennis', 
         'volleyball', 
-        'weightlifting', 
-        'olympic wrestling'
+        'weightlifting'
     ]
     
     ig = ImageAugmentation()
-    transformations = [ig.random_brightness, ig.random_horizontal_flip, ig.random_rotation]
-    
+    transformations = [ig.random_gamma_correction]
     train = ImageDataset(
         path, 
         classes, 
