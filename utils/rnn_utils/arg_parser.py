@@ -24,6 +24,9 @@ def train_arg_parser():
     
     # Number of epochs for training
     parser.add_argument('--epoch', type=int, default=20)
+
+    # Random state for reproducibility
+    parser.add_argument('--random_state', type=int, default=42)
     
     
     args = parser.parse_args()
@@ -49,6 +52,9 @@ def test_arg_parser():
 
     # Batch size for testing
     parser.add_argument('--bs', type=int, default=10)
+
+    # Random state for reproducibility
+    parser.add_argument('--random_state', type=int, default=42)
     
     args = parser.parse_args()
     return args
