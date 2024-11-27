@@ -4,3 +4,8 @@
 *.pyc
 data/*
 *.pth
+*.ipynb
+*.jpg
+*.png
+*.jpeg
+*.zip
