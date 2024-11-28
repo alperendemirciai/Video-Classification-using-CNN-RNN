@@ -15,3 +15,24 @@ class ResNet50Model(nn.Module):
 
     def forward(self, x):
         return self.resnet50(x)
+    
+    def feature_extractor(self, x, until_layer='avgpool'):
+        """
+        Perform a forward pass up to a specified layer.
+        
+        Args:
+            x: Input tensor.
+            until_layer (str): The layer name until which to forward the input.
+                               Default is 'avgpool', which extracts features
+                               before the classification layer.
+                               You can also select any other layer to extract, just print the layer name and use it.
+        
+        Returns:
+            Tensor: Extracted features.
+        """
+        features = x
+        for name, layer in self.resnet50._modules.items():
+            features = layer(features)
+            if name == until_layer:
+                break
+        return features

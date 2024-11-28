@@ -1,4 +1,5 @@
 import argparse 
+import torch
 
 
 def train_arg_parser():
@@ -11,7 +12,13 @@ def train_arg_parser():
     parser = argparse.ArgumentParser()
     
     # Device configuration (e.g., 'cuda:0' or 'cpu')
-    parser.add_argument('--device', type=str, default='cuda:0')
+
+    if torch.cuda.is_available():
+        parser.add_argument('--device', type=str, default='cuda:0')
+    elif torch.backends.mps.is_available():
+        parser.add_argument('--device', type=str, default='mps')
+    else:
+        parser.add_argument('--device', type=str, default='cpu')
     
     # Experiment ID for saving checkpoints and results
     parser.add_argument('--exp_id', type=str, default='exp/0')

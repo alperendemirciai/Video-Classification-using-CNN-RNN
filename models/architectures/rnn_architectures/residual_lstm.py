@@ -92,8 +92,16 @@ class ResLSTM(nn.Module):
         # Pass through all layers
         for layer in self.layers:
             input, hidden = layer(input, hidden)
-        ##return input, hidden
-        output = self.fc(input[-1])
+
+        # Assume 'x' is the input tensor of shape (B, S, F)
+        ##output, _ = self.lstm(x)  # output: (B, S, hidden_size)
+
+        # Use the last time step's output for classification:
+        input = input[:, -1, :]  # (B, hidden_size)
+
+        # Pass through the fully connected layer to get logits:
+        output = self.fc(input)  # (B, num_classes)
+
         return output, hidden
 
 # Example Usage

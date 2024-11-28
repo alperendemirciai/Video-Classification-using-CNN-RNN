@@ -10,8 +10,8 @@ from torchvision.transforms import Compose, ToTensor, Normalize, Resize, RandomH
 from PIL import Image
 import cv2
 
-from video_augmentations import VideoAugmentation
-import video_visualization as vv
+from .video_augmentations import VideoAugmentation
+from .video_visualization import *
 
 
 class SequentialVideoDataset(Dataset):
@@ -160,7 +160,7 @@ class SequentialVideoDataset(Dataset):
 
 # Example usage
 if __name__ == "__main__":
-    data_dir = "../Videos"
+    data_dir = "../../Videos"
     classes = [
         "archery",
         "baseball",
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
     frames_array = frames.permute(0, 2, 3, 1).numpy()  # Convert tensor to NumPy array
     # Visualize the frames
-    vv.save_as_gif(frames_array, "output/sample_video6_2.gif")
+    save_as_gif(frames_array, "output/sample_video6_2.gif")
     """
 
     # Split the dataset
@@ -238,5 +238,5 @@ if __name__ == "__main__":
     second_video_frames_array = second_video_frames.permute(0, 2, 3, 1).numpy()
 
     # Save the frames as a GIF
-    vv.save_as_gif(second_video_frames_array, "output/second_video_sample.gif")
+    save_as_gif(second_video_frames_array, "output/second_video_sample.gif")
     """
