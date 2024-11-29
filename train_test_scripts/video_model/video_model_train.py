@@ -21,6 +21,9 @@ from models.architectures.rnn_architectures.lstm_model import LSTMModel
 from models.architectures.cnn_architectures.resnet50 import ResNet50Model
 
 
+from typing import Tuple, Optional
+
+
 def train(args, train_loader, val_loader, rnn, cnn, criterion, optimizer):
     """
     Train the RNN model using extracted features from the pretrained CNN.
@@ -36,6 +39,8 @@ def train(args, train_loader, val_loader, rnn, cnn, criterion, optimizer):
 
     for epoch in range(args.epoch):
         train_loss, train_accuracy = train_one_epoch(args, train_loader, rnn, cnn, criterion, optimizer)
+        #train_loss = 0.0
+        #train_accuracy = 0.0
         val_loss, val_accuracy = validate_one_epoch(args, val_loader, rnn, cnn, criterion)
 
         train_loss_history.append(train_loss)
@@ -49,13 +54,15 @@ def train(args, train_loader, val_loader, rnn, cnn, criterion, optimizer):
     
     ## Save the model
     os.makedirs('../checkpoints', exist_ok=True)
-    torch.save(rnn.state_dict(), f'../checkpoints/{args.exp_id}_rnn.pth')
+    os.makedirs(f'../checkpoints/{args.exp_id}', exist_ok=True)
+
+    torch.save(rnn.state_dict(), f'../checkpoints/{args.exp_id}/final_rnn.pth')
 
 
     plot_train_val_history(train_loss_history, val_loss_history, f'../plots/{args.exp_id}/rnn_train_val_loss.png')
     plot_metric(val_accuracy_history, 'Validation', f'../plots/{args.exp_id}', 'Accuracy')
 
-def train_one_epoch(args, train_loader, rnn, cnn, criterion, optimizer):
+def train_one_epoch(args, train_loader, rnn, cnn, criterion, optimizer) -> Tuple[float, float]:
     train_loader = tqdm(train_loader, desc="Training")
     rnn.train()
     cnn.eval()  # CNN is frozen during training
@@ -121,7 +128,9 @@ def validate_one_epoch(args, val_loader, rnn, cnn, criterion):
             # Reshape features for RNN: (B * S, F) -> (B, S, F)
             features = features.view(b, s, -1)
             outputs,_ = rnn(features)  # Output: (B, num_classes)
-
+            print(f"Outputs shape: {outputs.shape}, Labels shape: {labels.shape}")
+            print(_.__len__(), "hidden state length")  # Debug
+            print(outputs, labels)
             loss = criterion(outputs, labels)
             running_loss += loss.item()
             _, predicted = torch.max(outputs, 1)
@@ -146,7 +155,7 @@ if __name__ == '__main__':
         "skiing", "running", "shotput", "soccer"
     ]
 
-    sequence_length = 32
+    sequence_length = 16  # Number of frames per sequence
     target_size = (224, 224)  # Resize frames for CNN input
 
     va = VideoAugmentation(random_state=args.random_state)
@@ -162,7 +171,7 @@ if __name__ == '__main__':
         random_state=args.random_state
     )
 
-    train_subset, val_subset, test_subset = dataset.train_test_val_split(val_size=0.2, test_size=0.15)
+    train_subset, val_subset, test_subset = dataset.train_test_val_split(val_size=0.2, test_size=0.20)
 
     train_loader = DataLoader(train_subset, batch_size=args.bs, shuffle=True)
     val_loader = DataLoader(val_subset, batch_size=args.bs, shuffle=False)
@@ -170,7 +179,7 @@ if __name__ == '__main__':
     INPUT_SIZE = 2048  # ResNet50 feature size
 
     cnn = ResNet50Model(num_classes=len(classes), pretrained=True).to(args.device)
-    rnn = ResLSTM(input_size=INPUT_SIZE, hidden_size=32, num_classes=len(classes), num_layers=2).to(args.device)
+    rnn = ResLSTM(input_size=INPUT_SIZE, hidden_size=16, num_classes=len(classes), num_layers=1).to(args.device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(rnn.parameters(), lr=args.lr)
