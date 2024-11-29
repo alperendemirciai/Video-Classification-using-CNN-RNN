@@ -128,9 +128,9 @@ def validate_one_epoch(args, val_loader, rnn, cnn, criterion):
             # Reshape features for RNN: (B * S, F) -> (B, S, F)
             features = features.view(b, s, -1)
             outputs,_ = rnn(features)  # Output: (B, num_classes)
-            print(f"Outputs shape: {outputs.shape}, Labels shape: {labels.shape}")
-            print(_.__len__(), "hidden state length")  # Debug
-            print(outputs, labels)
+            ##print(f"Outputs shape: {outputs.shape}, Labels shape: {labels.shape}")
+            ##print(_.__len__(), "hidden state length")  # Debug
+            ##print(outputs, labels)
             loss = criterion(outputs, labels)
             running_loss += loss.item()
             _, predicted = torch.max(outputs, 1)
