@@ -2,4 +2,14 @@
 *.gif
 *.DS_Store
 *.pyc
+<<<<<<< HEAD
 data/*
+=======
+data/*
+*.pth
+*.ipynb
+*.jpg
+*.png
+*.jpeg
+*.zip
+>>>>>>> 80c5cba32b3320aa2008f3e01f30f8ec5abbd46c
