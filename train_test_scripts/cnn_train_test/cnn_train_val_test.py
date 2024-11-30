@@ -4,7 +4,6 @@ from tqdm import tqdm
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchvision import models
 import torch.nn as nn
 
 from datasets.image_dataset.image_dataset import ImageDataset
