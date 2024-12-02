@@ -21,9 +21,7 @@ def plot_train_val_history(train_loss_history, val_loss_history, save_path):
     plt.legend()
     plt.grid(True)
 
-    if os.path.exists(save_path):
-        os.remove(save_path)
-    else:
+    if not os.path.exists(save_path):
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
     plt.savefig(save_path)
@@ -49,10 +47,8 @@ def plot_metric(metric_history, label, plot_dir, metric):
     plt.legend()
     plt.grid(True)
     
-    if os.path.exists(save_path):
-        os.remove(save_path)
-    else:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    if not os.path.exists(plot_dir):
+        os.makedirs(os.path.dirname(plot_dir), exist_ok=True)
 
     plt.savefig(os.path.join(plot_dir, f'{metric}_plot.png'))
     plt.close()

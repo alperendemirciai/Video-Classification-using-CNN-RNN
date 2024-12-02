@@ -26,10 +26,14 @@ class LSTMModel(nn.Module):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
 
+        if self.lstm.bidirectional:
+            h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(x.device)
+            c0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(x.device)
+
         # Forward propagate LSTM
         out, _ = self.lstm(x, (h0, c0))
 
         # Decode the hidden state of the last time step
         out = self.fc(out[:, -1, :])
-        return out
+        return out, _
     

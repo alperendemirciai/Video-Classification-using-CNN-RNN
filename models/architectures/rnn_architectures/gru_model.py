@@ -22,4 +22,4 @@ class GRUModel(nn.Module):
 
         # Decode the hidden state of the last time step
         out = self.fc(out[:, -1, :])
-        return out
+        return out, _
