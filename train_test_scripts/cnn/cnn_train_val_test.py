@@ -84,21 +84,21 @@ if __name__ == '__main__':
     # default run: py -m train_test_scripts.cnn.cnn_train_val_test
     # experiments:
     # resnet:
-    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation']
-    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise']
-    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] 
-    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] 
-    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation']
-    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise']
-    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation']
+    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 93.64%
+    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 93.64%
+    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] Test Accuracy: 95.45%
+    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] Test Accuracy: 89.09%
+    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 86.36%
+    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 95.45%
+    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation'] Test Accuracy: 91.82%
     # vgg:
-    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation']
-    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise']
-    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] 
-    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] 
-    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation']
-    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise']
-    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation']
+    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 94.55%
+    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 96.36%
+    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] Test Accuracy: 93.64%
+    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] Test Accuracy: 91.82%
+    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 93.64%
+    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 96.36%
+    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation'] Test Accuracy: 92.73%
 
     args = arg_parser.run_model()
 
