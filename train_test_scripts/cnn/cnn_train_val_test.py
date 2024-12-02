@@ -12,6 +12,7 @@ from datasets.image_dataset.image_augmentation import ImageAugmentation
 from utils.cnn_utils import arg_parser
 
 from models.architectures.cnn_architectures.resnet50 import ResNet50Model
+from models.architectures.cnn_architectures.vgg import VGGModel
 # TODO: Import other models
 
 def train_epoch(model, dataloader, criterion, optimizer, device):
@@ -80,7 +81,25 @@ def test_model(model, dataloader, device):
     return accuracy
 
 if __name__ == '__main__':
-    # default run: py -m train_test_scripts.cnn_train_test.cnn_train_val_test
+    # default run: py -m train_test_scripts.cnn.cnn_train_val_test
+    # experiments:
+    # resnet:
+    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation']
+    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise']
+    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] 
+    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] 
+    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation']
+    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise']
+    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation']
+    # vgg:
+    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation']
+    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise']
+    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] 
+    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] 
+    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation']
+    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise']
+    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation']
+
     args = arg_parser.run_model()
 
     torch.manual_seed(args.random_state)
@@ -168,13 +187,17 @@ if __name__ == '__main__':
     )
 
     model_map = {
-        'resnet50': ResNet50Model
+        'resnet50': ResNet50Model,
+        'vgg16': VGGModel
         # TODO: Add other models
     }
 
-    if args.model in ['resnet50']: # or other pretrained model
-        model = model_map[args.model](num_classes=len(classes), pretrained=True) # TODO: Add other pretrained model
+    if args.model in ['resnet50']: 
+        model = model_map[args.model](num_classes=len(classes), pretrained=True) 
         optimizer = optim.Adam(model.resnet50.fc.parameters(), lr=args.lr)
+    elif args.model in ['vgg16']: 
+        model = model_map[args.model](num_classes=len(classes), pretrained=True) 
+        optimizer = optim.Adam(model.vgg.classifier[6].parameters(), lr=args.lr)
     else:
         model = model_map[args.model](num_classes=len(classes))
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
