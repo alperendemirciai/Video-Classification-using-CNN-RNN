@@ -11,7 +11,11 @@ class VGGModel(nn.Module):
                 param.requires_grad = False
         
         num_ftrs = self.vgg.classifier[6].in_features
-        self.vgg.classifier[6] = nn.Linear(num_ftrs, num_classes)
+        self.vgg.classifier[6] = nn.Sequential(
+            nn.Linear(num_ftrs, 2048),
+            nn.ReLU(),
+            nn.Linear(2048, num_classes)
+        )
 
     def forward(self, x):
         return self.vgg(x)

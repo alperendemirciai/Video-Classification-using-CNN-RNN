@@ -92,13 +92,13 @@ if __name__ == '__main__':
     # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 95.45%
     # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation'] Test Accuracy: 91.82%
     # vgg:
-    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 94.55%
-    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 96.36%
-    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] Test Accuracy: 93.64%
-    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] Test Accuracy: 91.82%
-    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 93.64%
-    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 96.36%
-    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation'] Test Accuracy: 92.73%
+    # 0: ['random_brightness', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 96.36%
+    # 1: ['random_crop', 'random_horizontal_flip', 'random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 95.45%
+    # 2: ['random_rotation', 'random_horizontal_flip', 'random_color_jitter', 'random_gaussian_noise'] Test Accuracy: 94.55%
+    # 3: ['random_crop', 'random_scale', 'random_brightness', 'random_contrast'] Test Accuracy: 89.09%
+    # 4: ['random_crop', 'random_scale', 'random_horizontal_flip', 'random_rotation'] Test Accuracy: 87.27%
+    # 5: ['random_brightness', 'random_contrast', 'random_gaussian_noise'] Test Accuracy: 93.64%
+    # 6: ['random_horizontal_flip', 'random_vertical_flip', 'random_rotation'] Test Accuracy: 90.00%
 
     args = arg_parser.run_model()
 
